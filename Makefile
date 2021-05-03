@@ -37,6 +37,7 @@ $(DEB_DIR): $(ARCHIVE_DIR)
 	install -Dm755 postinst "$(DEB_DIR)/DEBIAN/"
 	install -Dm755 prerm "$(DEB_DIR)/DEBIAN/"
 	install -Dm755 postrm "$(DEB_DIR)/DEBIAN/"
+	sed -i "s|{{VERSION}}|$(VERSION)|g" "$(DEB_DIR)/DEBIAN/control"
 
 	# Install dbus and systemd config files
 	install -Dm644 $(ARCHIVE_DIR)/configs/dbus/de.alxg.bsrvd.conf "$(DEB_DIR)"/usr/share/dbus-1/system.d/de.alxg.bsrvd.conf

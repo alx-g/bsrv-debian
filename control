@@ -1,5 +1,5 @@
 Package: bsrv
-Version: 0.0.3
+Version: {{VERSION}}
 Architecture: all
 Maintainer: Alexander Grathwohl <alex.grathwohl@gmail.com>
 Description: daemon to schedule and run borg backups automatically.
