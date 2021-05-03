@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Setup venv
+echo "-> Setting up virtualenv..."
+python3 -m venv --system-site-packages "/usr/lib/bsrv/venv" 
+source "/usr/lib/bsrv/venv/bin/activate"
+echo "-> Installing required packages using pip..."
+python3 -m pip --no-input --disable-pip-version-check --isolated install -r "/usr/lib/bsrv/requirements.txt"
+deactivate
+
+# Overwrite touched files in /usr/bin with working symlinks
+ln -sf "/usr/lib/bsrv/bsrvd.sh" "/usr/bin/bsrvd"
+ln -sf "/usr/lib/bsrv/bsrvstatd.sh" "/usr/bin/bsrvstatd"
+ln -sf "/usr/lib/bsrv/bsrvcli.sh" "/usr/bin/bsrvcli"
+
+# Make sure systemd finds the new service files
+systemctl daemon-reload

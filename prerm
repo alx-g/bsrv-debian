@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Make sure services are stopped
+systemctl stop bsrvd
+systemctl stop bsrvstatd
+
+# Remove venv
+rm -r /usr/lib/bsrv/venv
+
+# Remove python cache files
+find /usr/lib/bsrv -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete

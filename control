@@ -1,0 +1,8 @@
+Package: bsrv
+Version: 0.0.2
+Architecture: all
+Maintainer: Alex Grathwohl <alex.grathwohl@gmail.com>
+Description: daemon to schedule and run borg backups automatically.
+Homepage: https://github.com/alx-g/bsrv
+Build-Depends: python3-pip, python3-setuptools
+Depends: python3, python3-gi-cairo, python3-gi, libgirepository1.0-dev, borgbackup, libsystemd0

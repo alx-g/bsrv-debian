@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make sure systemd removes the deleted services
+systemctl daemon-reload
+
+# Alert user
+echo "Note: bsrvd and bsrvstatd use cache files. They were not removed, as their location is configurable. The default directory is /var/lib/bsrvd."
