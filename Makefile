@@ -5,11 +5,13 @@ BUILD_DIR=./build/
 ARCHIVE_FILE=$(BUILD_DIR)$(PKGNAME)-$(VERSION).tar.gz
 ARCHIVE_DIR=$(BUILD_DIR)$(PKGNAME)-$(VERSION)
 DEB_DIR=$(BUILD_DIR)$(PKGNAME)_$(VERSION)-1_any
+DEB_DIR_TRAY=$(BUILD_DIR)$(PKGNAME)-tray_$(VERSION)-1_any
 PACKAGE=$(BUILD_DIR)$(PKGNAME)_$(VERSION)-1_any.deb
+PACKAGE_TRAY=$(BUILD_DIR)$(PKGNAME)-tray_$(VERSION)-1_any.deb
 
 COPYRIGHTFILE="$(DEB_DIR)"/usr/share/doc/$(PKGNAME)/copyright
 
-.DEFAULT_GOAL:=$(PACKAGE)
+.DEFAULT_GOAL:=install
 .PHONY:=clean
 
 $(ARCHIVE_FILE):
@@ -78,14 +80,42 @@ $(DEB_DIR): $(ARCHIVE_DIR)
 	touch "$(DEB_DIR)/usr/bin/bsrvstatd"
 	touch "$(DEB_DIR)/usr/bin/bsrvcli"
 
+$(DEB_DIR_TRAY): $(ARCHIVE_DIR)
+	mkdir -p "$(DEB_DIR_TRAY)/DEBIAN"
+	chmod 755 "$(DEB_DIR_TRAY)/DEBIAN"
+	install -Dm755 control_tray "$(DEB_DIR_TRAY)/DEBIAN/control"
+	install -Dm755 postinst_tray "$(DEB_DIR_TRAY)/DEBIAN/postinst"
+	sed -i "s|{{VERSION}}|$(VERSION)|g" "$(DEB_DIR_TRAY)/DEBIAN/control"
+
+	# Install bsrv software files
+	mkdir -p "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)"
+	cp "$(ARCHIVE_DIR)/src/bsrvtray" "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)/" -r
+	cp "$(ARCHIVE_DIR)/src/bsrvtray.sh" "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)/"
+	cp "$(ARCHIVE_DIR)/src/requirements_tray.txt" "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)/"
+	chmod 755 "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)/bsrvtray.sh"
+	chmod 755 "$(DEB_DIR_TRAY)/usr/lib/$(PKGNAME)"
+
+	# Install bsrv assets for tray
+	mkdir -p "$(DEB_DIR_TRAY)/usr/share/$(PKGNAME)"
+	cp "$(ARCHIVE_DIR)/assets" "$(DEB_DIR_TRAY)/usr/share/$(PKGNAME)/" -r
+	chmod 755 "$(DEB_DIR_TRAY)/usr/share/$(PKGNAME)" -R
+
+	# Touch /usr/bin symlinks so dpkg knows about them
+	mkdir "$(DEB_DIR_TRAY)/usr/bin"
+	touch "$(DEB_DIR_TRAY)/usr/bin/bsrvtray"
+
+$(PACKAGE_TRAY): $(DEB_DIR_TRAY)
+	dpkg-deb --build --root-owner-group "$(DEB_DIR_TRAY)"
+
 $(PACKAGE): $(DEB_DIR)
 	dpkg-deb --build --root-owner-group "$(DEB_DIR)"
 
 clean:
 	-rm -r $(BUILD_DIR)
 
-install: $(PACKAGE)
+install: $(PACKAGE) $(PACKAGE_TRAY)
 	sudo apt install $(PACKAGE)
+	sudo apt install $(PACKAGE_TRAY)
 
-uninstall:
-	sudo apt purge $(PKGNAME)
+install-noqt: $(PACKAGE)
+	sudo apt install $(PACKAGE)

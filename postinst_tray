@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Overwrite touched files in /usr/bin with working symlinks
+ln -sf "/usr/lib/bsrv/bsrvtray.sh" "/usr/bin/bsrvtray"
